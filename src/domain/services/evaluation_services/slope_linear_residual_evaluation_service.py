@@ -46,11 +46,11 @@ class SlopeLinearResidualEvaluationService:
         # -----------------------------
         # ① 一次近似残差
         # -----------------------------
-        coef_x_1 = np.polyfit(xs, ys_x, 1)
-        coef_y_1 = np.polyfit(xs, ys_y, 1)
+        slope_x_1, intercept_x_1 = SlopeLinearResidualEvaluationService._fit_theil_sen(xs, ys_x)
+        slope_y_1, intercept_y_1 = SlopeLinearResidualEvaluationService._fit_theil_sen(xs, ys_y)
 
-        pred_x_1 = np.polyval(coef_x_1, xs)
-        pred_y_1 = np.polyval(coef_y_1, xs)
+        pred_x_1 = slope_x_1 * xs + intercept_x_1
+        pred_y_1 = slope_y_1 * xs + intercept_y_1
 
         linear_residuals = np.column_stack([ys_x - pred_x_1, ys_y - pred_y_1])
         linear_vo = SlopeLinearResiduals.create(linear_residuals)
@@ -77,3 +77,25 @@ class SlopeLinearResidualEvaluationService:
         quad_vo = SlopeQuadraticResiduals.create(quad_residuals)
 
         return linear_vo, mean_vo, quad_vo
+
+    @staticmethod
+    def _fit_theil_sen(xs: np.ndarray, ys: np.ndarray) -> tuple[float, float]:
+        """
+        Theil-Sen 推定で直線 y = a*x + b の係数 (a, b) を返す。
+        """
+        if xs.shape[0] < 2:
+            return 0.0, float(np.median(ys))
+
+        dx = xs[None, :] - xs[:, None]
+        dy = ys[None, :] - ys[:, None]
+
+        upper = np.triu(np.ones_like(dx, dtype=bool), k=1)
+        valid = upper & (dx != 0)
+
+        if not np.any(valid):
+            slope = 0.0
+        else:
+            slope = float(np.median(dy[valid] / dx[valid]))
+
+        intercept = float(np.median(ys - slope * xs))
+        return slope, intercept
