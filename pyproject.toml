@@ -1,0 +1,15 @@
+[project]
+name = "20260707-slopesaver"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dearpygui>=2.3.1",
+    "genicam>=1.5.1",
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.4",
+    "opencv-python>=4.13.0.92",
+    "pymodbus>=3.13.0",
+    "pypylon>=26.4.1",
+]
