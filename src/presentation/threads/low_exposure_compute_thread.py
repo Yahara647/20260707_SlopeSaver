@@ -17,6 +17,7 @@ from application.usecases.save_measurement_results_usecase import SaveMeasuremen
 from application.usecases.save_picture_usecase import SavePictureUseCase
 from application.usecases.compute_measurement_evaluation_usecase import ComputeMeasurementEvaluationUseCase
 from application.usecases.compute_measurement_evaluation_from_led_world_usecase import ComputeMeasurementEvaluationFromLedWorldUseCase
+from application.usecases.save_measurement_snapshot_line_usecase import SaveMeasurementSnapshotLineUseCase
 from shared.shared_evaluation import shared_evaluation
 from shared.shared_graph_data import shared_graph_data
 
@@ -47,6 +48,7 @@ class LowExposureComputeThread:
 
         # 結果保存 UseCase
         self.save_usecase = SaveMeasurementResultsUseCase()
+        self.save_snapshot_line_usecase = SaveMeasurementSnapshotLineUseCase()
 
         # 10秒周期保存用
         self._last_picture_save_time = 0.0
@@ -173,7 +175,17 @@ class LowExposureComputeThread:
                     evaluation=evaluation_result,
                 )
 
+                snapshot_path = self.save_snapshot_line_usecase.execute(
+                    base_dir="output/daily_snapshots",
+                    app_config=self.app_config,
+                    calib=calib_result,
+                    proj=proj_align_result,
+                    slope=slope_result,
+                    evaluation=evaluation_result,
+                )
+
                 self._logger.info(f"Saved evaluation results to: {eval_save_dir}")
+                self._logger.info(f"Appended daily snapshot line to: {snapshot_path}")
 
                 with shared_evaluation.lock:
                     shared_evaluation.slope_score = evaluation_result.slope_distortion.slope_score
