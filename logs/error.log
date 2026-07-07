@@ -1,0 +1,16 @@
+2026-07-07 15:34:48,162 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,278 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,389 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,498 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,613 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,731 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,836 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:48,945 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:34:49,052 [ERROR] [DisplayThread] slope_saver (display_thread.py:221) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-07 15:35:26,871 [ERROR] [LowExposureComputeThread] slope_saver (single_led_position_detection_service.py:151) - SingleLedPositionDetectionService: 全 LED を探索しましたが輝点が検出されませんでした
+2026-07-07 15:35:26,944 [ERROR] [LowExposureComputeThread] slope_saver (single_led_position_detection_service.py:159) - SingleLedPositionDetectionService: 30 秒待機します
+2026-07-07 15:35:46,945 [ERROR] [LowExposureComputeThread] slope_saver (full_reflection_measurement_usecase.py:92) - FullReflectionMeasurementUseCase: marker LED の位置検出に失敗
+2026-07-07 15:35:46,946 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 9, got 8)
+2026-07-07 15:46:04,536 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-07 15:46:48,000 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-07 15:47:12,446 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)

@@ -7,6 +7,7 @@ import cv2
 import time
 from threading import Thread
 from typing import Optional
+from pathlib import Path
 
 from application.buffers.frame_buffer import FrameBuffer
 from domain.value_objects.config_values.app_flags import AppFlags
@@ -48,6 +49,74 @@ class DisplayThread:
         self._cached_point = None
         self._cached_score = None
         self._graph_window_open = False
+        self._graph_plot_rect = (105, 185, 495, 388)
+        self._graph_base_template = self._load_graph_base_template()
+
+    def _load_graph_base_template(self) -> np.ndarray:
+        """グラフ背景のテンプレート画像を読み込む。"""
+        template_path = (
+            Path(__file__).resolve().parents[3]
+            / "output"
+            / "graph_assets"
+            / "base_graph_template.png"
+        )
+
+        template = cv2.imread(str(template_path))
+        if template is None:
+            self._logger.warning(f"Graph template not found: {template_path}")
+            return np.full((400, 600, 3), 255, dtype=np.uint8)
+
+        if template.shape[:2] != (400, 600):
+            template = cv2.resize(template, (600, 400), interpolation=cv2.INTER_AREA)
+
+        return template
+
+    def _render_graph_overlay(self, red_world: np.ndarray, residuals: np.ndarray) -> np.ndarray:
+        """背景テンプレート上にグラフ領域だけ折れ線を重ねて描画する。"""
+        graph_img = self._graph_base_template.copy()
+        ys = residuals[:, 0]
+        y_axis_max = float(np.max(ys)) if len(ys) > 0 else 1.0
+        if y_axis_max <= 0:
+            y_axis_max = 1.0
+
+        # 画像左上に、縦軸最大値を Score として表示
+        cv2.putText(
+            graph_img,
+            f"Score: {y_axis_max:.2f}",
+            (12, 28),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (40, 40, 40),
+            2,
+            cv2.LINE_AA,
+        )
+
+        x1, y1, x2, y2 = self._graph_plot_rect
+        margin = 8
+        plot_x1, plot_y1 = x1 + margin, y1 + margin
+        plot_x2, plot_y2 = x2 - margin, y2 - margin
+
+        xs = red_world[:, 1]
+        ys = residuals[:, 0]
+
+        if len(xs) <= 1:
+            return graph_img
+
+        x_span = xs.max() - xs.min()
+        if x_span < 1e-9:
+            xs_norm = np.full(len(xs), (plot_x1 + plot_x2) / 2.0)
+        else:
+            xs_norm = ((xs - xs.min()) / x_span) * (plot_x2 - plot_x1) + plot_x1
+
+        ys_clamped = np.clip(ys, 0.0, y_axis_max)
+        ys_norm = plot_y2 - ys_clamped * (plot_y2 - plot_y1)
+
+        for i in range(1, len(xs_norm)):
+            p1 = (int(xs_norm[i - 1]), int(ys_norm[i - 1]))
+            p2 = (int(xs_norm[i]), int(ys_norm[i]))
+            cv2.line(graph_img, p1, p2, (0, 200, 0), 2)
+
+        return graph_img
 
 
     def start(self) -> None:
@@ -148,24 +217,7 @@ class DisplayThread:
                                 residuals = shared_graph_data.slope_linear_residuals_min_adjusted
 
                             if red_world is not None and residuals is not None:
-                                graph_img = np.zeros((400, 600, 3), dtype=np.uint8)
-
-                                xs = red_world[:, 1]
-                                ys = residuals[:, 0]
-
-                                if len(xs) > 1:
-                                    xs_norm = ((xs - xs.min()) / (xs.max() - xs.min() + 1e-6)) * 580 + 10
-                                    ys_ratio = ys
-                                    ys_norm = 380 - (ys_ratio * 380) + 10
-
-                                    for i in range(1, len(xs_norm)):
-                                        cv2.line(
-                                            graph_img,
-                                            (int(xs_norm[i-1]), int(ys_norm[i-1])),
-                                            (int(xs_norm[i]), int(ys_norm[i])),
-                                            (0, 255, 0),
-                                            2
-                                        )
+                                graph_img = self._render_graph_overlay(red_world, residuals)
 
                                 cv2.imshow("graph_display", graph_img)
 
