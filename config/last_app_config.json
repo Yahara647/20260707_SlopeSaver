@@ -1,6 +1,6 @@
 {
   "led_reflection_area": {
-    "x": 1350,
+    "x": 1351,
     "y": 2100,
     "width": 1200,
     "height": 800
@@ -14,6 +14,21 @@
   },
   "led_coordinates": {
     "coords_in_world": [
+      [
+        0.0,
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0,
+        110.0
+      ],
+      [
+        0.0,
+        0.0,
+        120.0
+      ],
       [
         0.0,
         0.0,
@@ -208,10 +223,10 @@
     "value": 0
   },
   "projection_alignment_led_number": {
-    "value": 5
+    "value": 4
   },
   "exposure_for_computation": {
-    "value": 20.0
+    "value": 30.0
   },
   "exposure_for_display": {
     "value": 20000.0

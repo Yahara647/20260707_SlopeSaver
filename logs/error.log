@@ -14,3 +14,110 @@
 2026-07-07 15:46:04,536 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
 2026-07-07 15:46:48,000 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
 2026-07-07 15:47:12,446 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 10:16:48,072 [ERROR] [LowExposureComputeThread] slope_saver (single_led_position_detection_service.py:138) - SingleLedPositionDetectionService: LED 13 の輝点が複数検出されました（3 個）
+2026-07-08 10:16:53,957 [ERROR] [LowExposureComputeThread] slope_saver (single_led_position_detection_service.py:151) - SingleLedPositionDetectionService: 全 LED を探索しましたが輝点が検出されませんでした
+2026-07-08 10:16:54,041 [ERROR] [LowExposureComputeThread] slope_saver (single_led_position_detection_service.py:159) - SingleLedPositionDetectionService: 30 秒待機します
+2026-07-08 10:17:14,042 [ERROR] [LowExposureComputeThread] slope_saver (full_reflection_measurement_usecase.py:92) - FullReflectionMeasurementUseCase: marker LED の位置検出に失敗
+2026-07-08 10:17:14,044 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 9, got 8)
+2026-07-08 10:17:49,378 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,143 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,258 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,365 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,420 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 10:18:28,472 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,581 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,689 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,798 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:28,905 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:29,012 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:29,123 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:29,231 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:18:35,969 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 10:18:56,593 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,414 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,524 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,630 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,738 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,846 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:17,952 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:18,061 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,273 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,384 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,491 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,604 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,712 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:22,821 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:41,938 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,052 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,167 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,273 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,384 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,491 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,599 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,708 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:42,817 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:43,950 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,063 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,174 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,281 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,387 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,495 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,604 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:44,712 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:48,980 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,093 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,207 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,314 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,425 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,533 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,644 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,751 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:49,859 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,001 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,113 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,227 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,338 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,445 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,554 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,661 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:28:52,768 [ERROR] [DisplayThread] slope_saver (display_thread.py:237) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:34:34,724 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 10:38:52,531 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 10:55:39,508 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:39,615 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:39,726 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:39,835 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:39,948 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,055 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,166 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,275 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,383 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,490 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,597 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:40,706 [ERROR] [DisplayThread] slope_saver (display_thread.py:284) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 10:55:59,535 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 11:07:01,306 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 11:07:19,784 [ERROR] [DisplayThread] slope_saver (display_thread.py:297) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:07:19,891 [ERROR] [DisplayThread] slope_saver (display_thread.py:297) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:07:19,999 [ERROR] [DisplayThread] slope_saver (display_thread.py:297) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:15:08,496 [ERROR] [DisplayThread] slope_saver (display_thread.py:297) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:15:08,608 [ERROR] [DisplayThread] slope_saver (display_thread.py:297) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,018 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,132 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,289 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,394 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,503 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,610 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,718 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,825 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:29:32,937 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 11:30:33,327 [ERROR] [LowExposureComputeThread] slope_saver (low_exposure_compute_thread.py:122) - LowExposureComputeThread: error: not enough values to unpack (expected 8, got 7)
+2026-07-08 12:13:08,009 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,164 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,279 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,384 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,493 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,603 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,711 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,823 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
+2026-07-08 12:13:08,941 [ERROR] [DisplayThread] slope_saver (display_thread.py:354) - DisplayThread loop error: cannot convert float NaN to integer
