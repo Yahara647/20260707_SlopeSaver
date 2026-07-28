@@ -1,6 +1,6 @@
 {
   "led_reflection_area": {
-    "x": 1351,
+    "x": 1500,
     "y": 2100,
     "width": 1200,
     "height": 800
@@ -194,7 +194,7 @@
   "calibration_leds_in_world": {
     "coords_in_world": [
       [
-        -150.0,
+        -100.0,
         500.0,
         0.0
       ],
@@ -204,13 +204,13 @@
         0.0
       ],
       [
-        -150.0,
-        800.0,
+        -100.0,
+        1000.0,
         0.0
       ],
       [
         100.0,
-        800.0,
+        1000.0,
         0.0
       ]
     ]
@@ -226,10 +226,10 @@
     "value": 4
   },
   "exposure_for_computation": {
-    "value": 30.0
+    "value": 40.0
   },
   "exposure_for_display": {
-    "value": 20000.0
+    "value": 10000.0
   },
   "app_flags": {
     "shutdown": true,

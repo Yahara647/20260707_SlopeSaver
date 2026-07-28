@@ -158,6 +158,6 @@ class SingleLedPositionDetectionService:
         # ★ 30 秒待機
         self._logger.error("SingleLedPositionDetectionService: 30 秒待機します")
         import time
-        time.sleep(20)
+        time.sleep(3)
 
         return False, None, None
