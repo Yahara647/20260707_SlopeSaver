@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: 20260707-slopesaver
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: dearpygui>=2.3.1
+Requires-Dist: genicam>=1.5.1
+Requires-Dist: matplotlib>=3.10.9
+Requires-Dist: numpy>=2.4.4
+Requires-Dist: opencv-python>=4.13.0.92
+Requires-Dist: pymodbus>=3.13.0
+Requires-Dist: pypylon>=26.4.1

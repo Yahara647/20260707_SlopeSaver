@@ -71,8 +71,20 @@ class CameraSettingView:
                 width=200,
             )
 
+        # --- スリット光検出用露光 ---
+        dpg.add_text("　ⅲ. スリット光検出用映像 明るさ（露光時間:us）")
+        with dpg.group(horizontal=True):
+            dpg.add_spacer(width=20)
+            dpg.add_input_int(
+                tag="slit_light_exposure_input",
+                default_value=int(cfg.exposure_for_slit_light.value),
+                min_value=1,
+                max_value=1_000_000,
+                width=200,
+            )
+
         # --- Apply All Settings ---
-        dpg.add_text("　ⅲ. 設定を適用")
+        dpg.add_text("　ⅳ. 設定を適用")
         with dpg.group(horizontal=True):
             dpg.add_spacer(width=20)
             dpg.add_button(
@@ -81,6 +93,7 @@ class CameraSettingView:
                 callback=lambda: self.controller.on_apply_all_settings(
                     display_exp=dpg.get_value("display_exposure_input"),
                     compute_exp=dpg.get_value("compute_exposure_input"),
+                    slit_light_exp=dpg.get_value("slit_light_exposure_input"),
                 )
             )
         dpg.add_spacer(height=10)

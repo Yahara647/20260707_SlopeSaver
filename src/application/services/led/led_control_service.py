@@ -41,6 +41,19 @@ class LedControlService:
         
         return True
 
+    def turn_off_only(self, led_id: int) -> bool:
+        """指定した LED だけを消灯させる（他は点灯したままにする）"""
+        self.logger.info(f"LedControlService: LED {led_id} のみ消灯開始")
+        
+        result = self.led_driver.set_led(led_id, False)
+        
+        if result:
+            self.logger.info(f"LedControlService: LED {led_id} のみ消灯成功")
+        else:
+            self.logger.error(f"LedControlService: LED {led_id} の消灯に失敗")
+        
+        return result
+
     def turn_off_all(self) -> bool:
         """すべての LED を消灯"""
         self.logger.info("LedControlService: 全 LED 消灯開始")

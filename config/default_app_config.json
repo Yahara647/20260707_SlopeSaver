@@ -213,8 +213,17 @@
   "exposure_for_computation": {
     "value": 20.0
   },
+  "exposure_for_slit_light": {
+    "value": 200.0
+  },
   "exposure_for_display": {
     "value": 20000.0
+  },
+  "slit_light_source_x_coordinate": {
+    "value": 0.0
+  },
+  "slit_light_source_y_coordinate": {
+    "value": 0.0
   },
   "app_flags": {
     "shutdown": true,

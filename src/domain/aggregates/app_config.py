@@ -10,6 +10,9 @@ from domain.value_objects.config_values.calibration_leds_in_world import Calibra
 from domain.value_objects.config_values.projection_alignment_led_number import ProjectionAlignmentLedNumber
 from domain.value_objects.config_values.exposure_for_computation import ExposureForComputation
 from domain.value_objects.config_values.exposure_for_display import ExposureForDisplay
+from domain.value_objects.config_values.exposure_for_slit_light import ExposureForSlitLight
+from domain.value_objects.config_values.slit_light_source_x_coordinate import SlitLightSourceXCoordinate
+from domain.value_objects.config_values.slit_light_source_y_coordinate import SlitLightSourceYCoordinate
 
 # ← 新規追加
 from domain.value_objects.config_values.app_flags import AppFlags
@@ -30,6 +33,9 @@ class AppConfig:
     - projection_alignment_led_number: 投影LEDの位置合わせに使用する LED 番号
     - exposure_for_computation       : 計算用画像の露光時間
     - exposure_for_display           : 表示用画像の露光時間
+    - exposure_for_slit_light        : スリット光検出用画像の露光時間
+    - slit_light_source_x_coordinate : スリット光源の X 座標（実空間）
+    - slit_light_source_y_coordinate : スリット光源の Y 座標（実空間）
 
     - app_flags                      : アプリ動作フラグ（終了・停止・表示ON/OFF）
 
@@ -47,5 +53,8 @@ class AppConfig:
     projection_alignment_led_number: ProjectionAlignmentLedNumber
     exposure_for_computation: ExposureForComputation
     exposure_for_display: ExposureForDisplay
+    exposure_for_slit_light: ExposureForSlitLight
+    slit_light_source_x_coordinate: SlitLightSourceXCoordinate
+    slit_light_source_y_coordinate: SlitLightSourceYCoordinate
 
     app_flags: AppFlags

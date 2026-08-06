@@ -118,7 +118,8 @@ class DisplayThread:
     def _render_graph_overlay(self, red_world: np.ndarray, residuals: np.ndarray) -> np.ndarray:
         """背景テンプレート上にグラフ領域だけ折れ線を重ねて描画する。"""
         graph_img = self._graph_base_template.copy()
-        y_axis_max = 1.0
+        y_axis_min = -2.0
+        y_axis_max = 2.0
 
         ys_all = residuals[:, 0]
         data_max = float(np.max(ys_all)) if len(ys_all) > 0 else 0.0
@@ -153,8 +154,19 @@ class DisplayThread:
         else:
             xs_norm = ((xs - xs.min()) / x_span) * (plot_x2 - plot_x1) + plot_x1
 
-        ys_clamped = np.clip(ys, 0.0, y_axis_max)
-        ys_norm = plot_y2 - ys_clamped / y_axis_max * (plot_y2 - plot_y1)
+        ys_clamped = np.clip(ys, y_axis_min, y_axis_max)
+        ys_norm = plot_y2 - ((ys_clamped - y_axis_min) / (y_axis_max - y_axis_min)) * (plot_y2 - plot_y1)
+
+        # y=0 の基準線（点線）
+        zero_y = int(
+            plot_y2 - ((0.0 - y_axis_min) / (y_axis_max - y_axis_min)) * (plot_y2 - plot_y1)
+        )
+        dash_len, gap_len = 6, 4
+        x_cur = plot_x1
+        while x_cur < plot_x2:
+            x_end = min(x_cur + dash_len, plot_x2)
+            cv2.line(graph_img, (x_cur, zero_y), (x_end, zero_y), (120, 120, 120), 1)
+            x_cur += dash_len + gap_len
 
         for i in range(1, len(xs_norm)):
             p1 = (int(xs_norm[i - 1]), int(ys_norm[i - 1]))
@@ -191,19 +203,10 @@ class DisplayThread:
             if len(in_region) == 0:
                 continue
 
-            region_max = float(np.max(ys[in_region]))
-            region_max_idx = in_region[int(np.argmax(ys[in_region]))]
+            region_median = float(np.median(ys[in_region]))
 
-            # 境界上の最大値かどうかを判定（隣接領域境界±1px以内）
-            at_boundary = False
-            px = float(xs_norm[region_max_idx])
-            if region_idx in (0, 1):
-                boundary_px = float(region_borders_px[region_idx + 1])
-                if abs(px - boundary_px) <= 1:
-                    at_boundary = True
-
-            # 色選択：閾値超え かつ 境界上でない → 赤
-            if region_max > self._REGION_THRESHOLD and not at_boundary:
+            # 色選択：中央値が閾値超えなら赤
+            if region_median > self._REGION_THRESHOLD:
                 text_color = (0, 0, 220)
             else:
                 text_color = (40, 40, 40)
@@ -221,10 +224,10 @@ class DisplayThread:
                 color=text_color,
             )
 
-            # 最大値テキストをグラフ領域の上側に描画
+            # 中央値テキストをグラフ領域の上側に描画
             cv2.putText(
                 graph_img,
-                f"{region_max:.2f}",
+                f"{region_median:.2f}",
                 (text_cx - 22, plot_y1 - 14),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,

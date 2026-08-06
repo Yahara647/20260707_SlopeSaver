@@ -36,3 +36,8 @@ class LedCoordinates:
 
         # 正常ならインスタンス生成
         return cls(coords_in_world=coords_in_world)
+
+    @property
+    def is_empty(self) -> bool:
+        """座標が空（0件）かどうかを返す"""
+        return self.coords_in_world is None or len(self.coords_in_world) == 0

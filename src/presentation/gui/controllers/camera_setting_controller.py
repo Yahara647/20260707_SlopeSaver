@@ -14,6 +14,7 @@ from domain.value_objects.config_values.calibration_leds_in_world import Calibra
 from domain.value_objects.config_values.led_reflection_area import LedReflectionArea
 from domain.value_objects.config_values.exposure_for_display import ExposureForDisplay
 from domain.value_objects.config_values.exposure_for_computation import ExposureForComputation
+from domain.value_objects.config_values.exposure_for_slit_light import ExposureForSlitLight
 
 from infrastructure.camera.pylon_camera_driver import PylonCameraDriver
 from infrastructure.dio.dio_led_driver import DioLedDriver
@@ -54,8 +55,8 @@ class CameraSettingController:
         self.dio_service = dio_service
         self.calibration_preparation_result: CalibrationPreparationResult = calibration_preparation_result
 
-    def on_apply_all_settings(self, display_exp: int, compute_exp: int) -> None:
-        logger.info(f"ApplyAll: display={display_exp}, compute={compute_exp}")
+    def on_apply_all_settings(self, display_exp: int, compute_exp: int, slit_light_exp: int) -> None:
+        logger.info(f"ApplyAll: display={display_exp}, compute={compute_exp}, slit_light={slit_light_exp}")
 
         # 1. Camera に露光適用（表示用）
         ok_exp = self.camera_service.set_exposure_time(display_exp)
@@ -84,8 +85,14 @@ class CameraSettingController:
             logger.error("ExposureForComputation.create() が False を返しました")
             return
 
+        new_slit_light = ExposureForSlitLight.create(slit_light_exp)
+        if new_slit_light is False:
+            logger.error("ExposureForSlitLight.create() が False を返しました")
+            return
+
         self.config.exposure_for_display = new_display
         self.config.exposure_for_computation = new_compute
+        self.config.exposure_for_slit_light = new_slit_light
 
         logger.info("ApplyAll: AppConfig の露光値を更新しました")
 

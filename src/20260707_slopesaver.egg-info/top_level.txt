@@ -1,0 +1,8 @@
+__init__
+application
+domain
+fonts
+infrastructure
+logger
+presentation
+shared

@@ -96,15 +96,16 @@ class SingleLedPositionDetectionService:
         # ---------------------------------------------------------
         for led_to_try in search_order:
 
-            # --- LED 点灯 ---
-            self.led_control_service.turn_only(led_to_try)
-            self._logger.debug(f"SingleLedPositionDetectionService: LED {led_to_try} を点灯")
+            # --- 全LED点灯 ---
+            self.led_control_service.turn_on_all()
+            self._logger.debug(f"SingleLedPositionDetectionService: 全LED点灯")
 
             # --- 撮像 ---
             frame = self.camera_capture_service.capture_with_exposure(exposure)
 
-            # --- LED 消灯 ---
-            self.led_control_service.turn_off_all()
+            # --- LED 1つを消灯 ---
+            self.led_control_service.turn_off_only(led_to_try)
+            self._logger.debug(f"SingleLedPositionDetectionService: LED {led_to_try} を消灯")
 
             if frame is None:
                 self._logger.error("SingleLedPositionDetectionService: 撮像に失敗しました")
@@ -130,6 +131,9 @@ class SingleLedPositionDetectionService:
                 self._logger.debug(
                     f"SingleLedPositionDetectionService: LED {led_to_try} の位置を検出: ({x}, {y})"
                 )
+                
+                # 復旧: 全LED点灯
+                self.led_control_service.turn_on_all()
 
                 return True, point, detected_led_vo
 

@@ -231,6 +231,15 @@
   "exposure_for_display": {
     "value": 10000.0
   },
+  "exposure_for_slit_light": {
+    "value": 500.0
+  },
+  "slit_light_source_x_coordinate": {
+    "value": 0.0
+  },
+  "slit_light_source_y_coordinate": {
+    "value": 0.0
+  },
   "app_flags": {
     "shutdown": true,
     "pause": false,
