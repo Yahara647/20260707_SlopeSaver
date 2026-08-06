@@ -158,6 +158,7 @@ class ApplicationRunner:
             save_picture_usecase=self.save_picture_usecase,
             app_config=self.config,
             calibration_preparation_result=self.calibration_preparation_result,
+            interval_sec=0.5,
         )
 
         # 表示スレッド

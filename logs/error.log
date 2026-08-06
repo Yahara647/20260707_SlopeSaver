@@ -1232,3 +1232,4 @@ AttributeError: 'SlitLightPointsInFrame' object has no attribute 'slit_light_z_c
 2026-08-06 11:38:25,881 [ERROR] [LowExposureComputeThread] slope_saver (led_position_detection_service.py:171) - 全LEDを試しましたが消えた点が見つかりません
 2026-08-06 12:24:03,830 [ERROR] [LowExposureComputeThread] slope_saver (led_position_detection_service.py:171) - 全LEDを試しましたが消えた点が見つかりません
 2026-08-06 12:24:12,155 [ERROR] [LowExposureComputeThread] slope_saver (led_position_detection_service.py:171) - 全LEDを試しましたが消えた点が見つかりません
+2026-08-06 12:55:40,977 [ERROR] [Dummy-1] slope_saver (camera_setting_controller.py:125) - CameraSettingController: キャリブレーション UI から座標が返されませんでした

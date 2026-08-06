@@ -53,7 +53,7 @@ class MainWindow:
         with dpg.font_registry():
             self.jp_font = dpg.add_font(r"src\fonts\NotoSansJP-Regular.ttf", 18)
 
-        dpg.create_viewport(title="Slope Saver", width=400, height=600)
+        dpg.create_viewport(title="Slope Saver", width=400, height=660)
         dpg.setup_dearpygui()
 
         # ★ フォントをデフォルトに設定
@@ -71,7 +71,7 @@ class MainWindow:
                 dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (120, 120, 120))
                 dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (80, 80, 80))
 
-        with dpg.window(label="MainWindow", tag="MainWindow", width=400, height=600, no_title_bar=True, no_move=True):
+        with dpg.window(label="MainWindow", tag="MainWindow", width=400, height=660, no_title_bar=True, no_move=True):
 
             with dpg.tab_bar():
 

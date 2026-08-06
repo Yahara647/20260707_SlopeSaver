@@ -88,9 +88,9 @@ class LowExposureComputeThread:
         self._slit_light_normal_calculator = SlitLightNormalCalculatorService(logger=self._logger)
         self._slit_light_slope_calculator = SlitLightSlopeCalculatorService(logger=self._logger)
         
-        # LED位置検出用タイマー（10秒ごと）
+        # LED位置検出用タイマー（5秒ごと）
         self._last_led_position_detection_time = 0.0
-        self._led_position_detection_interval = 10.0
+        self._led_position_detection_interval = 5.0
         
         # 前ループのLED検出結果・マッピング情報を保持
         self._prev_led_points_in_frame = None
