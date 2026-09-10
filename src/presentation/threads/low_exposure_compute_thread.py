@@ -29,6 +29,7 @@ from shared.shared_graph_data import shared_graph_data
 # 新しいスリット光処理用サービス
 from domain.services.led_position_detection_service import LedPositionDetectionService
 from domain.services.led_frame_to_world_mapper_service import LedFrameToWorldMapperService
+from domain.services.led_world_coordinate_resolver_service import LedWorldCoordinateResolverService
 from domain.services.slit_light_detection_service import SlitLightDetectionService
 from domain.services.slit_light_transformer_service import SlitLightTransformerService
 from domain.services.slit_light_normal_calculator_service import SlitLightNormalCalculatorService
@@ -83,14 +84,15 @@ class LowExposureComputeThread:
             logger=self._logger
         )
         self._led_frame_to_world_mapper = LedFrameToWorldMapperService(logger=self._logger)
+        self._led_world_coordinate_resolver = LedWorldCoordinateResolverService(logger=self._logger)
         self._slit_light_detector = SlitLightDetectionService(logger=self._logger)
         self._slit_light_transformer = SlitLightTransformerService(logger=self._logger)
         self._slit_light_normal_calculator = SlitLightNormalCalculatorService(logger=self._logger)
         self._slit_light_slope_calculator = SlitLightSlopeCalculatorService(logger=self._logger)
         
-        # LED位置検出用タイマー（5秒ごと）
+        # LED位置検出用タイマー（0.3秒ごと）
         self._last_led_position_detection_time = 0.0
-        self._led_position_detection_interval = 5.0
+        self._led_position_detection_interval = 0.3
         
         # 前ループのLED検出結果・マッピング情報を保持
         self._prev_led_points_in_frame = None
@@ -157,17 +159,25 @@ class LowExposureComputeThread:
                         self._prev_led_numbers_in_frame = led_numbers
                         
                         # LED y-z マッピング生成（②）
-                        # config から LED 世界座標を取得
+                        # 検出したLED番号に対応する世界座標を取得
                         led_world_coords = self.app_config.led_coordinates
                         if led_world_coords is not None and not led_world_coords.is_empty:
-                            success_mapping, mapping_info = self._led_frame_to_world_mapper.create_mapping(
-                                led_points_in_frame=led_frame_points,
-                                led_world_coords=led_world_coords,
+                            success_resolve, detected_led_world_coords = self._led_world_coordinate_resolver.resolve(
+                                led_nums=led_numbers,
+                                led_coordinates=led_world_coords,
                             )
+
+                            if not success_resolve or detected_led_world_coords is None:
+                                self._logger.warning("検出LEDの世界座標取得に失敗")
+                            else:
+                                success_mapping, mapping_info = self._led_frame_to_world_mapper.create_mapping(
+                                    led_points_in_frame=led_frame_points,
+                                    led_world_coords=detected_led_world_coords,
+                                )
                             
-                            if success_mapping:
-                                self._led_y_to_z_mapping = mapping_info
-                                self._logger.info("LED y-z マッピング生成成功")
+                                if success_mapping:
+                                    self._led_y_to_z_mapping = mapping_info
+                                    self._logger.info("LED y-z マッピング生成成功")
                         
                         self._last_led_position_detection_time = now
                     else:
@@ -182,91 +192,83 @@ class LowExposureComputeThread:
                 try:
                     self._logger.debug("スリット光処理開始...")
                     
-                    # スリット光撮像時は LED を一旦消灯して、近傍点光源の混入を防ぐ。
-                    led_control = self.usecase.compute_low_exposure_service.led_control_service
-                    try:
-                        self._logger.info("スリット光撮像前に全 LED を消灯")
-                        led_control.turn_off_all()
-
-                        # 現在のフレームを取得（スリット光検出用露光で撮像）
-                        slit_exposure = self.app_config.exposure_for_slit_light.value
-                        frame_for_slit = self.usecase.compute_low_exposure_service.camera_capture_service.capture_with_exposure(slit_exposure)
-                        if frame_for_slit is None:
-                            self._logger.warning("スリット光処理用フレーム取得失敗")
-                        else:
-                            # ③ スリット光検出
-                            success_slit_detect, slit_points_frame, slit_source_z_coords = self._slit_light_detector.detect_slit_light(
-                                frame=frame_for_slit.data if hasattr(frame_for_slit, 'data') else frame_for_slit,
-                                app_config=self.app_config,
-                                led_y_to_z_mapping=self._led_y_to_z_mapping,
-                                led_frame_points=self._prev_led_points_in_frame,
+                    # 現在のフレームを取得（スリット光検出用露光で撮像）
+                    slit_exposure = self.app_config.exposure_for_slit_light.value
+                    self.usecase.compute_low_exposure_service.led_control_service.turn_off_all()
+                    frame_for_slit = self.usecase.compute_low_exposure_service.camera_capture_service.capture_with_exposure(slit_exposure)
+                    if frame_for_slit is None:
+                        self._logger.warning("スリット光処理用フレーム取得失敗")
+                    else:
+                        # ③ スリット光検出
+                        success_slit_detect, slit_points_frame, slit_source_z_coords = self._slit_light_detector.detect_slit_light(
+                            frame=frame_for_slit.data if hasattr(frame_for_slit, 'data') else frame_for_slit,
+                            app_config=self.app_config,
+                            led_y_to_z_mapping=self._led_y_to_z_mapping,
+                            led_frame_points=self._prev_led_points_in_frame,
+                        )
+                        
+                        if success_slit_detect and slit_points_frame is not None:
+                            # ④ スリット光ホモグラフィ変換
+                            success_transform, slit_points_world = self._slit_light_transformer.transform_to_world(
+                                slit_points_in_frame=slit_points_frame,
+                                slit_source_z_coords=slit_source_z_coords,
+                                homography_matrix=self.calibration_preparation_result.homography_matrix,
+                                strip_z=self.app_config.strip_z.value,
                             )
-
-                            if success_slit_detect and slit_points_frame is not None:
-                                # ④ スリット光ホモグラフィ変換
-                                success_transform, slit_points_world = self._slit_light_transformer.transform_to_world(
-                                    slit_points_in_frame=slit_points_frame,
-                                    slit_source_z_coords=slit_source_z_coords,
-                                    homography_matrix=self.calibration_preparation_result.homography_matrix,
-                                    strip_z=self.app_config.strip_z.value,
+                            
+                            if success_transform and slit_points_world is not None:
+                                # ⑤ スリット光法線計算
+                                # スリット光源の3D座標を構築
+                                slit_light_source_3d = self._construct_slit_light_source_coords(
+                                    slit_points_frame, slit_source_z_coords
                                 )
-
-                                if success_transform and slit_points_world is not None:
-                                    # ⑤ スリット光法線計算
-                                    # スリット光源の3D座標を構築
-                                    slit_light_source_3d = self._construct_slit_light_source_coords(
-                                        slit_points_frame, slit_source_z_coords
+                                
+                                if slit_light_source_3d is not None:
+                                    success_normal, slit_normals = self._slit_light_normal_calculator.calculate(
+                                        slit_light_source_in_world=slit_light_source_3d,
+                                        slit_projection_in_world=slit_points_world,
+                                        camera_coord=self.app_config.camera_coordinate,
                                     )
-
-                                    if slit_light_source_3d is not None:
-                                        success_normal, slit_normals = self._slit_light_normal_calculator.calculate(
-                                            slit_light_source_in_world=slit_light_source_3d,
-                                            slit_projection_in_world=slit_points_world,
-                                            camera_coord=self.app_config.camera_coordinate,
+                                    
+                                    if success_normal and slit_normals is not None:
+                                        # ⑥ スリット光勾配計算
+                                        success_slope, slit_slope_angles = self._slit_light_slope_calculator.calculate(
+                                            normals=slit_normals
                                         )
-
-                                        if success_normal and slit_normals is not None:
-                                            # ⑥ スリット光勾配計算
-                                            success_slope, slit_slope_angles = self._slit_light_slope_calculator.calculate(
-                                                normals=slit_normals
+                                        
+                                        if success_slope and slit_slope_angles is not None:
+                                            self._logger.debug(
+                                                f"スリット光処理成功: "
+                                                f"{len(slit_slope_angles.slopes_in_world)}個の勾配"
                                             )
+                                            # 結果を SlopeComputationResult に集約して保存
+                                            result = SlopeComputationResult(
+                                                led_points_in_frame=self._prev_led_points_in_frame,
+                                                led_numbers_in_frame=self._prev_led_numbers_in_frame,
+                                                slit_points_in_frame=slit_points_frame,
+                                                slit_source_z_coords=slit_source_z_coords,
+                                                slit_points_in_world=slit_points_world,
+                                                normal_vectors=slit_normals,
+                                                slope_angles=slit_slope_angles,
+                                            )
+                                            out_dir = self.save_slit_usecase.execute(
+                                                base_dir="output/results",
+                                                app_config=self.app_config,
+                                                calib=self.calibration_preparation_result,
+                                                slope=result,
+                                            )
+                                            self._logger.info(f"スリット光計測結果を保存: {out_dir}")
 
-                                            if success_slope and slit_slope_angles is not None:
-                                                self._logger.debug(
-                                                    f"スリット光処理成功: "
-                                                    f"{len(slit_slope_angles.slopes_in_world)}個の勾配"
-                                                )
-                                                # 結果を SlopeComputationResult に集約して保存
-                                                result = SlopeComputationResult(
-                                                    led_points_in_frame=self._prev_led_points_in_frame,
-                                                    led_numbers_in_frame=self._prev_led_numbers_in_frame,
-                                                    slit_points_in_frame=slit_points_frame,
-                                                    slit_source_z_coords=slit_source_z_coords,
-                                                    slit_points_in_world=slit_points_world,
-                                                    normal_vectors=slit_normals,
-                                                    slope_angles=slit_slope_angles,
-                                                )
-                                                out_dir = self.save_slit_usecase.execute(
-                                                    base_dir="output/results",
-                                                    app_config=self.app_config,
-                                                    calib=self.calibration_preparation_result,
-                                                    slope=result,
-                                                )
-                                                self._logger.info(f"スリット光計測結果を保存: {out_dir}")
+                                            # スリット光計測結果から評価値を算出して保存
+                                            evaluation = self.compute_slit_evaluation_usecase.execute(result)
+                                            eval_out_dir = self.save_evaluation_usecase.execute(
+                                                base_dir="output/evaluation_results",
+                                                evaluation=evaluation,
+                                            )
+                                            self._logger.info(f"評価結果を保存: {eval_out_dir}")
 
-                                                # スリット光計測結果から評価値を算出して保存
-                                                evaluation = self.compute_slit_evaluation_usecase.execute(result)
-                                                eval_out_dir = self.save_evaluation_usecase.execute(
-                                                    base_dir="output/evaluation_results",
-                                                    evaluation=evaluation,
-                                                )
-                                                self._logger.info(f"評価結果を保存: {eval_out_dir}")
-
-                                                # 表示系 shared データを更新（横軸は slit_points_in_world の y 座標を使用）
-                                                self._publish_display_data(result, evaluation)
-                    finally:
-                        self._logger.info("スリット光撮像後に全 LED を点灯復帰")
-                        led_control.turn_on_all()
+                                            # 表示系 shared データを更新（横軸は slit_points_in_world の y 座標を使用）
+                                            self._publish_display_data(result, evaluation)
                 
                 except Exception as e:
                     self._logger.exception(f"スリット光処理エラー: {e}")

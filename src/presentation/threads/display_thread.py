@@ -292,8 +292,6 @@ class DisplayThread:
                         continue
 
                     frame = frame_item.data
-                    if frame.ndim == 2:
-                        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
 
                     # --- tiny sleep ---
                     time.sleep(0.0005)

@@ -1,18 +1,21 @@
 """
 LED位置検出サービス
 
-点光源がすべて点灯された状態で撮像し、その後一つを消灯して撮像。
-消灯前後で消えた点を検出し、LED番号と画像座標を対応付ける。
+LEDを1つだけ点灯して撮像し、その投影位置をLED番号と対応付ける。
 """
 
 from __future__ import annotations
 from typing import Tuple, Optional
+import time
 import numpy as np
 from logging import Logger
 
+from domain.value_objects.config_values.projection_alignment_led_number import ProjectionAlignmentLedNumber
 from domain.value_objects.computed_values.red_bright_points_in_frame import RedBrightPointsInFrame
 from domain.value_objects.computed_values.led_numbers_in_frame import LedNumbersInFrame
+from domain.value_objects.computed_values.single_bright_point_in_frame import SingleBrightPointInFrame
 from domain.aggregates.app_config import AppConfig
+from domain.services.single_led_alignment_service import SingleLedAlignmentService
 from application.services.led.led_control_service import LedControlService
 from application.services.camera.camera_capture_service import CameraCaptureService
 
@@ -21,8 +24,7 @@ class LedPositionDetectionService:
     """
     LED位置検出サービス
     
-    全LED点灯時と1つ消灯時の2枚の画像を比較して、
-    消えた点を検出し、LED番号と画像座標を対応付ける。
+    LEDを1つだけ点灯して撮像し、検出された点をそのLEDの投影位置として扱う。
     """
     
     def __init__(self, 
@@ -34,6 +36,7 @@ class LedPositionDetectionService:
         self.camera_capture_service = camera_capture_service
         self.app_config = app_config
         self.logger = logger
+        self.alignment_service = SingleLedAlignmentService(logger=logger)
     
     def detect_led_positions(
         self,
@@ -46,10 +49,9 @@ class LedPositionDetectionService:
         
         処理フロー:
         1. 前ループの検出LED番号から中央値を選ぶ（初回は LED 0）
-        2. 全LED点灯で撮像 → 赤色点検出
-        3. 選択したLEDを消灯して撮像 → 赤色点検出
-        4. 差分から消えた点を特定 → LED番号と対応付け
-        5. その他のLED番号は位置関係から推定
+        2. 選択したLEDだけを点灯して撮像
+        3. 赤色点を1点検出し、そのLEDを基準点にする
+        4. 全LEDを点灯して撮像し、基準点から各LED番号を割り当てる
         
         Parameters
         ----------
@@ -71,132 +73,119 @@ class LedPositionDetectionService:
         """
         
         try:
-            # --- ステップ1: 前ループから消灯対象のLED番号を決定 ---
-            # 初回実行時は前フレームがないため、LED 0を消灯対象に設定
+            # --- ステップ1: 前ループから探索開始LED番号を決定 ---
+            # 初回実行時は前フレームがないため、LED 0を点灯対象に設定
             if prev_detected_led_numbers is None or prev_detected_led_numbers.is_empty:
-                led_to_turn_off = 0  # デフォルト：最初のLED（番号0）を消灯
+                start_led = 0
                 if self.logger:
-                    self.logger.info("初回実行: LED位置検出のため、デフォルトでLED 0を消灯対象に設定")
+                    self.logger.info("初回実行: LED位置検出のため、デフォルトでLED 0を点灯対象に設定")
             else:
                 # 前回検出されたLED番号の中央値を取得
                 median_led_number = int(np.median(prev_detected_led_numbers.led_nums))
-                led_to_turn_off = median_led_number
+                start_led = median_led_number
                 
                 if self.logger:
                     self.logger.info(
                         f"LED位置検出: "
                         f"前フレームの検出LED番号={prev_detected_led_numbers.led_nums}, "
                         f"中央値LED番号={median_led_number}, "
-                        f"消灯予定LED={led_to_turn_off}"
+                        f"探索開始LED={start_led}"
                     )
             
-            # --- ステップ①: 全LED点灯で撮像 ---
-            self.led_control_service.turn_on_all()
-            # 短い安定化待機時間
-            import time
-            time.sleep(0.1)
-            
-            frame_all_on = self.camera_capture_service.capture_with_exposure(self.app_config.exposure_for_computation.value)
-            if frame_all_on is None:
-                if self.logger:
-                    self.logger.error("全LED点灯時の撮像に失敗")
-                return False, None, None
-            
-            # 赤色点検出
-            result_all_on = red_detector.detect(frame_all_on)
-            if not result_all_on:
-                if self.logger:
-                    self.logger.error("全LED点灯時の赤色点検出に失敗")
-                return False, None, None
-            
-            red_points_all_on = result_all_on  # RedBrightPointsInFrame
-            
-            # --- ステップ②: 消灯候補を順番にずらして消失点を探す ---
+            # --- ステップ2: 対象LEDだけを点灯して撮像。失敗したら次のLEDへ進む ---
             num_leds = self.led_control_service.led_driver.state.output_num
             exposure = self.app_config.exposure_for_computation.value
-            
-            disappeared_point = None
-            disappear_idx = None
-            led_that_turned_off = None
-            
+
             for attempt in range(num_leds):
-                candidate_led = (led_to_turn_off + attempt) % num_leds
-                
+                candidate_led = (start_led + attempt) % num_leds
+
                 if self.logger:
-                    self.logger.info(f"消失点探索: LED {candidate_led} を消灯して試行 ({attempt + 1}/{num_leds})")
-                
-                # 候補LEDを消灯して撮像
-                self.led_control_service.turn_off_only(candidate_led)
+                    self.logger.info(
+                        f"LED位置検出: LED {candidate_led} を単一点灯して試行 ({attempt + 1}/{num_leds})"
+                    )
+
+                if not self.led_control_service.turn_only(candidate_led):
+                    if self.logger:
+                        self.logger.warning(f"LED {candidate_led} の単一点灯に失敗。次の候補へ")
+                    continue
+
                 time.sleep(0.1)
-                
-                frame_one_off = self.camera_capture_service.capture_with_exposure(exposure)
-                
-                # 撮像後は全LED再点灯（次の試行のため）
-                self.led_control_service.turn_on_all()
-                
-                if frame_one_off is None:
+                frame_single_on = self.camera_capture_service.capture_with_exposure(exposure)
+
+                # 単LED撮像後はLEDを消灯する
+                self.led_control_service.turn_off_all()
+
+                if frame_single_on is None:
                     if self.logger:
-                        self.logger.warning(f"LED {candidate_led} 消灯時の撮像に失敗。スキップ")
+                        self.logger.warning(f"LED {candidate_led} 単一点灯時の撮像に失敗。次の候補へ")
                     continue
-                
-                result_one_off = red_detector.detect(frame_one_off)
-                if not result_one_off:
+
+                detected_points = red_detector.detect(frame_single_on)
+                if detected_points is None or detected_points.is_empty:
                     if self.logger:
-                        self.logger.warning(f"LED {candidate_led} 消灯時の赤色点検出に失敗。スキップ")
+                        self.logger.warning(f"LED {candidate_led} 単一点灯時に赤色点が見つかりません。次の候補へ")
                     continue
-                
-                # 差分から消えた点を特定
-                candidate_disappeared, candidate_idx = self._find_disappeared_point(
-                    red_points_all_on,
-                    result_one_off
-                )
-                
-                if candidate_disappeared is not None:
-                    disappeared_point = candidate_disappeared
-                    disappear_idx = candidate_idx
-                    led_that_turned_off = candidate_led
-                    if self.logger:
-                        self.logger.info(
-                            f"消失点発見: LED {candidate_led} 消灯により点(index={candidate_idx})が消失"
-                        )
-                    break
-                else:
+
+                coords = detected_points.coords_in_frame
+                if len(coords) != 1:
                     if self.logger:
                         self.logger.warning(
-                            f"LED {candidate_led} 消灯では消失点が見つかりません。次の候補へ"
+                            f"LED {candidate_led} 単一点灯時の検出点数が1点ではありません: {len(coords)}点。次の候補へ"
                         )
-            
-            if disappeared_point is None:
-                if self.logger:
-                    self.logger.error("全LEDを試しましたが消えた点が見つかりません")
-                return False, None, None
-            
-            # --- ステップ5: LED番号を対応付け ---
-            led_numbers, sorted_points = self._assign_led_numbers(
-                red_points_all_on,
-                disappear_idx,
-                led_that_turned_off,
-                num_leds
-            )
-            
-            if led_numbers is None:
-                if self.logger:
-                    self.logger.error("LED番号の対応付けに失敗")
-                return False, None, None
-            
-            # RedBrightPointsInFrameを再構築
-            led_points = RedBrightPointsInFrame.create(sorted_points)
-            if not led_points:
-                if self.logger:
-                    self.logger.error("LED点座標の生成に失敗")
-                return False, None, None
-            
-            if self.logger:
-                self.logger.info(
-                    f"LED位置検出成功: {len(sorted_points)}個のLED位置を検出"
+                    continue
+
+                single_point = coords.astype(np.int32).reshape(1, 2)
+                marker_point = SingleBrightPointInFrame.create(single_point)
+                marker_led = ProjectionAlignmentLedNumber.create(candidate_led)
+                
+                if not marker_point or not marker_led:
+                    if self.logger:
+                        self.logger.error("単LED基準点またはLED番号の生成に失敗")
+                    return False, None, None
+
+                # 全LED撮像の直前だけ全点灯する
+                self.led_control_service.turn_on_all()
+                time.sleep(0.1)
+                frame_all_on = self.camera_capture_service.capture_with_exposure(exposure)
+
+                # 全LED撮像後はすぐに消灯し、以降の画像処理中は点灯させない
+                self.led_control_service.turn_off_all()
+
+                if frame_all_on is None:
+                    if self.logger:
+                        self.logger.warning(f"LED {candidate_led} 基準での全LED点灯撮像に失敗。次の候補へ")
+                    continue
+
+                detected_all_points = red_detector.detect(frame_all_on)
+                if detected_all_points is None or detected_all_points.is_empty:
+                    if self.logger:
+                        self.logger.warning(f"LED {candidate_led} 基準での全LED点検出に失敗。次の候補へ")
+                    continue
+
+                success_align, led_numbers, led_points = self.alignment_service.assign(
+                    marker_led_num=marker_led,
+                    marker_led_coord=marker_point,
+                    detected_coords=detected_all_points,
                 )
-            
-            return True, led_points, led_numbers
+
+                if not success_align or led_numbers is None or led_points is None:
+                    if self.logger:
+                        self.logger.warning(f"LED {candidate_led} 基準でのLED番号割当に失敗。次の候補へ")
+                    continue
+
+                if self.logger:
+                    x, y = single_point[0]
+                    self.logger.info(
+                        f"LED位置検出成功: 基準LED {candidate_led} の投影位置=({int(x)}, {int(y)}), "
+                        f"検出LED番号={led_numbers.led_nums.tolist()}"
+                    )
+                
+                return True, led_points, led_numbers
+
+            self.led_control_service.turn_off_all()
+            if self.logger:
+                self.logger.error("全LEDを試しましたが、単一点灯で投影位置を検出できませんでした")
+            return False, None, None
             
         except Exception as e:
             if self.logger:
