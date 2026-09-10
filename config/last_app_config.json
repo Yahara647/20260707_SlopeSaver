@@ -226,13 +226,13 @@
     "value": 4
   },
   "exposure_for_computation": {
-    "value": 40.0
+    "value": 5000.0
   },
   "exposure_for_display": {
-    "value": 10000.0
+    "value": 20000.0
   },
   "exposure_for_slit_light": {
-    "value": 500.0
+    "value": 20000.0
   },
   "slit_light_source_x_coordinate": {
     "value": 0.0
