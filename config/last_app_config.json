@@ -232,7 +232,7 @@
     "value": 20000.0
   },
   "exposure_for_slit_light": {
-    "value": 20000.0
+    "value": 30000.0
   },
   "slit_light_source_x_coordinate": {
     "value": 0.0

@@ -42,3 +42,7 @@ class RedBrightPointsInFrame:
 
         # 正常ならインスタンス生成
         return cls(coords_in_frame=coords_in_frame)
+
+    @classmethod
+    def create_empty(cls):
+        return cls(coords_in_frame=np.empty((0, 2), dtype=np.int32))

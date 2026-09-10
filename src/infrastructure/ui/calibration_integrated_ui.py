@@ -48,8 +48,11 @@ class CalibrationIntegratedUI(ICalibrationUI):
 
         # --- Matplotlib 埋め込み ---
         fig, ax = plt.subplots(figsize=(6, 6))
-        img_rgb = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-        ax.imshow(img_rgb)
+        if self.image.ndim == 2:
+            img_display = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
+        else:
+            img_display = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        ax.imshow(img_display)
         ax.set_title("画像をクリックして4点選択")
         ax.axis("off")
 
@@ -162,8 +165,11 @@ class CalibrationIntegratedUI(ICalibrationUI):
             ez.configure(background="white")
 
             self.ax.clear()
-            img_rgb = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-            self.ax.imshow(img_rgb)
+            if self.image.ndim == 2:
+                img_display = cv2.cvtColor(self.image, cv2.COLOR_GRAY2RGB)
+            else:
+                img_display = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+            self.ax.imshow(img_display)
             self.ax.axis("off")
 
             for i, (x, y) in enumerate(self.pixel_points):

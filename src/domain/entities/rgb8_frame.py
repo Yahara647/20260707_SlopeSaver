@@ -5,7 +5,8 @@ from datetime import datetime
 @dataclass
 class Rgb8Frame:
     """
-    RGB8 (uint8, 3ch) の画像フレームを保持する構造体。
+    モノクロ画像（uint8, 2ch ではなく HxW の 2D 配列）を保持する構造体。
+    既存のカラー用コードはこの移行期間に合わせて grayscale 前提へ統一する。
     """
 
     data: np.ndarray
@@ -15,9 +16,7 @@ class Rgb8Frame:
     def create(cls, data, timestamp):
         if not isinstance(data, np.ndarray):
             return None
-        if data.ndim != 3:
-            return None
-        if data.shape[2] != 3:
+        if data.ndim != 2:
             return None
         if data.dtype != np.uint8:
             return None

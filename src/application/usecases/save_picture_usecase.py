@@ -34,11 +34,11 @@ class SavePictureUseCase:
             self._logger.error("SavePictureUseCase: 撮像に失敗")
             return None
 
-        # --- ★ Rgb8Frame → PIL.Image に変換 ---
+        # --- Rgb8Frame → PIL.Image に変換 ---
         try:
-            np_img = frame.data  # ★ numpy.ndarray
-            # ★ BGR → RGB 変換
-            np_img = np_img[:, :, ::-1]
+            np_img = frame.data
+            if np_img.ndim == 3 and np_img.shape[2] == 3:
+                np_img = np_img[:, :, ::-1]
             pil_img = Image.fromarray(np_img)
         except Exception as e:
             self._logger.error(f"SavePictureUseCase: 画像変換に失敗: {e}")

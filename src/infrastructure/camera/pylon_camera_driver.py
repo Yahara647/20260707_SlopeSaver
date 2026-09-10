@@ -8,6 +8,7 @@ from datetime import datetime
 import threading
 import time
 import cv2
+import numpy as np
 from logger.logger import logger
 
 
@@ -20,6 +21,86 @@ class PylonCameraDriver(ICameraService):
 
         # 全メソッド共通の排他ロック
         self._lock = threading.Lock()
+
+    def _get_node(self, node_name: str):
+        if self.camera is None:
+            return None
+        try:
+            nodemap = self.camera.GetNodeMap()
+            return nodemap.GetNode(node_name)
+        except Exception:
+            return None
+
+    def _set_enum_value(self, node_name: str, value, *, allow_missing: bool = True) -> bool:
+        node = self._get_node(node_name)
+        if node is None:
+            if allow_missing:
+                return False
+            raise RuntimeError(f"Node not existing: {node_name}")
+
+        try:
+            node.SetValue(value)
+            return True
+        except Exception as e:
+            if allow_missing:
+                self.logger.warning(f"{node_name} 設定失敗: {e}")
+                return False
+            raise
+
+    def _set_float_value(self, node_name: str, value: float, *, allow_missing: bool = True) -> bool:
+        node = self._get_node(node_name)
+        if node is None:
+            if allow_missing:
+                return False
+            raise RuntimeError(f"Node not existing: {node_name}")
+
+        try:
+            node.SetValue(float(value))
+            return True
+        except Exception as e:
+            if allow_missing:
+                self.logger.warning(f"{node_name} 設定失敗: {e}")
+                return False
+            raise
+
+    def _set_exposure_value(self, exposure_us: float) -> bool:
+        if self.camera is None:
+            return False
+
+        try:
+            if self._set_enum_value("ExposureAuto", "Off", allow_missing=True):
+                pass
+
+            exposure_node = self._get_node("ExposureTime")
+            if exposure_node is None:
+                exposure_node = self._get_node("ExposureTimeAbs")
+            if exposure_node is None:
+                raise RuntimeError("ExposureTime / ExposureTimeAbs node not available")
+
+            exposure_node.SetValue(float(exposure_us))
+            self.state.exposure_time = float(exposure_us)
+            return True
+        except Exception as e:
+            self.logger.error(f"露光設定失敗: {e}")
+            return False
+
+    def _set_gain_value(self, gain_value: float) -> bool:
+        if self.camera is None:
+            return False
+
+        gain_node = self._get_node("Gain")
+        if gain_node is None:
+            gain_node = self._get_node("GainRaw")
+        if gain_node is None:
+            return False
+
+        try:
+            gain_node.SetValue(float(gain_value))
+            self.state.gain = float(gain_value)
+            return True
+        except Exception as e:
+            self.logger.warning(f"Gain 設定失敗: {e}")
+            return False
 
     # ============================================================
     # initialize()
@@ -45,58 +126,79 @@ class PylonCameraDriver(ICameraService):
 
                 # --- UserSetDefault ---
                 try:
-                    if hasattr(self.camera, "UserSetSelector"):
-                        self.camera.UserSetSelector.SetValue("Default")
-                        self.camera.UserSetLoad.Execute()
+                    user_set_selector = self._get_node("UserSetSelector")
+                    if user_set_selector is not None:
+                        user_set_selector.SetValue("Default")
+                        user_set_load = self._get_node("UserSetLoad")
+                        if user_set_load is not None:
+                            user_set_load.Execute()
                 except Exception as e:
                     self.logger.warning(f"UserSetDefault ロード中に例外: {e}")
 
                 # --- PixelFormat ---
                 try:
-                    self.camera.PixelFormat.SetValue("BayerRG8")
+                    pixel_format = self._get_node("PixelFormat")
+                    if pixel_format is not None:
+                        for candidate in ("Mono8", "BayerRG8"):
+                            try:
+                                pixel_format.SetValue(candidate)
+                                self.logger.info(f"PixelFormat を {candidate} に設定しました")
+                                break
+                            except Exception as e:
+                                self.logger.warning(f"PixelFormat={candidate} 設定失敗: {e}")
+                    else:
+                        self.logger.warning("PixelFormat node が存在しません。モノクロ前提で継続します")
                 except Exception as e:
-                    self.logger.warning(f"PixelFormat 設定失敗: {e}")
+                    self.logger.warning(f"PixelFormat 設定中に例外: {e}")
 
                 # --- ISP OFF ---
                 try:
-                    if hasattr(self.camera, "BalanceWhiteAuto"):
-                        self.camera.BalanceWhiteAuto.SetValue("Off")
-                    if hasattr(self.camera, "LightSourcePreset"):
-                        self.camera.LightSourcePreset.SetValue("Off")
-                    if hasattr(self.camera, "ColorAdjustmentEnable"):
-                        self.camera.ColorAdjustmentEnable.SetValue(False)
-                    if hasattr(self.camera, "GammaEnable"):
-                        self.camera.GammaEnable.SetValue(False)
-                    if hasattr(self.camera, "DemosaicingEnable"):
-                        self.camera.DemosaicingEnable.SetValue(False)
+                    for node_name in ("BalanceWhiteAuto", "LightSourcePreset", "ColorAdjustmentEnable", "GammaEnable", "DemosaicingEnable"):
+                        node = self._get_node(node_name)
+                        if node is None:
+                            continue
+                        try:
+                            if node_name in ("BalanceWhiteAuto", "LightSourcePreset"):
+                                node.SetValue("Off")
+                            elif node_name in ("ColorAdjustmentEnable", "GammaEnable", "DemosaicingEnable"):
+                                node.SetValue(False)
+                        except Exception as e:
+                            self.logger.warning(f"{node_name} 無効化失敗: {e}")
                 except Exception as e:
                     self.logger.warning(f"ISP 無効化中に例外: {e}")
 
                 # --- ROI ---
                 try:
                     if self.state.roi_width > 0 and self.state.roi_height > 0:
-                        self.camera.OffsetX.SetValue(self.state.roi_x)
-                        self.camera.OffsetY.SetValue(self.state.roi_y)
-                        self.camera.Width.SetValue(self.state.roi_width)
-                        self.camera.Height.SetValue(self.state.roi_height)
+                        offset_x = self._get_node("OffsetX")
+                        offset_y = self._get_node("OffsetY")
+                        width_node = self._get_node("Width")
+                        height_node = self._get_node("Height")
+                        if offset_x is not None and offset_y is not None and width_node is not None and height_node is not None:
+                            offset_x.SetValue(self.state.roi_x)
+                            offset_y.SetValue(self.state.roi_y)
+                            width_node.SetValue(self.state.roi_width)
+                            height_node.SetValue(self.state.roi_height)
                 except Exception as e:
                     self.logger.warning(f"ROI 設定中に例外: {e}")
 
                 # --- AutoExposure / AutoGain ---
                 try:
-                    if hasattr(self.camera, "ExposureAuto"):
-                        self.camera.ExposureAuto.SetValue("Continuous" if self.state.auto_exposure else "Off")
-                    if hasattr(self.camera, "GainAuto"):
-                        self.camera.GainAuto.SetValue("Continuous" if self.state.auto_gain else "Off")
+                    exposure_auto = self._get_node("ExposureAuto")
+                    if exposure_auto is not None:
+                        exposure_auto.SetValue("Continuous" if self.state.auto_exposure else "Off")
+                    gain_auto = self._get_node("GainAuto")
+                    if gain_auto is not None:
+                        gain_auto.SetValue("Continuous" if self.state.auto_gain else "Off")
                 except Exception as e:
                     self.logger.warning(f"Auto 設定中に例外: {e}")
 
                 # --- Exposure / Gain ---
                 try:
                     if not self.state.auto_exposure:
-                        self.camera.ExposureTime.SetValue(self.state.exposure_time)
+                        self._set_exposure_value(self.state.exposure_time)
                     if not self.state.auto_gain:
-                        self.camera.Gain.SetValue(self.state.gain)
+                        self._set_gain_value(self.state.gain)
                 except Exception as e:
                     self.logger.warning(f"露光/ゲイン設定中に例外: {e}")
 
@@ -126,11 +228,25 @@ class PylonCameraDriver(ICameraService):
                     self.logger.error("CameraDriver: Grab 失敗")
                     return None
 
-                bayer = grab.Array
+                raw = grab.Array
                 grab.Release()
 
-                rgb = cv2.cvtColor(bayer, cv2.COLOR_BAYER_RG2RGB)
-                return Rgb8Frame.create(rgb, datetime.now())
+                if raw is None:
+                    return None
+
+                if raw.ndim == 2:
+                    frame = raw.astype(np.uint8, copy=False)
+                elif raw.ndim == 3 and raw.shape[2] == 3:
+                    frame = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+                elif raw.ndim == 2 and raw.dtype != np.uint8:
+                    frame = raw.astype(np.uint8, copy=False)
+                else:
+                    try:
+                        frame = cv2.cvtColor(raw, cv2.COLOR_BAYER_RG2GRAY)
+                    except Exception:
+                        frame = raw.astype(np.uint8, copy=False)
+
+                return Rgb8Frame.create(frame, datetime.now())
 
             except Exception as e:
                 self.logger.exception(f"CameraDriver: capture() 中に例外発生: {e}")
@@ -142,11 +258,12 @@ class PylonCameraDriver(ICameraService):
     def set_exposure_time(self, exposure_us: float) -> bool:
         with self._lock:
             try:
-                # 露光変更
+                if self.camera is None:
+                    return False
+
                 exp = float(exposure_us)
-                self.camera.ExposureAuto.SetValue("Off")
-                self.camera.ExposureTime.SetValue(exp)
-                self.state.exposure_time = exp
+                if not self._set_exposure_value(exp):
+                    return False
 
                 # ---------------------------------------------------------
                 # ★ Basler の仕様：露光変更後 2〜3 フレームは古い露光のまま
@@ -233,19 +350,15 @@ class PylonCameraDriver(ICameraService):
                 return None
 
             try:
-                # 現在の露光を保存
-                original_exposure = self.state.exposure_time
-
-                # 必要なら露光を変更
+                original_exposure = float(self.state.exposure_time)
                 exposure_changed = False
-                if original_exposure != exposure_us:
-                    try:
-                        # ★ Basler は numpy 型を受け付けないため、必ず Python float に変換する
-                        exp = float(exposure_us)
 
-                        self.camera.ExposureAuto.SetValue("Off")
-                        self.camera.ExposureTime.SetValue(exp)
-                        self.state.exposure_time = exp
+                if abs(original_exposure - float(exposure_us)) > 1e-9:
+                    try:
+                        exp = float(exposure_us)
+                        if not self._set_exposure_value(exp):
+                            self.logger.error("一時露光設定失敗: ExposureTime/ExposureTimeAbs node not available")
+                            return None
                         exposure_changed = True
                     except Exception as e:
                         self.logger.error(f"一時露光設定失敗: {e}")
@@ -270,19 +383,30 @@ class PylonCameraDriver(ICameraService):
                     self.logger.error("CameraDriver: Grab 失敗")
                     return None
 
-                bayer = grab.Array
+                raw = grab.Array
                 grab.Release()
 
-                rgb = cv2.cvtColor(bayer, cv2.COLOR_BAYER_RG2RGB)
-                frame = Rgb8Frame.create(rgb, datetime.now())
+                if raw is None:
+                    return None
+
+                if raw.ndim == 2:
+                    frame_array = raw.astype(np.uint8, copy=False)
+                elif raw.ndim == 3 and raw.shape[2] == 3:
+                    frame_array = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+                else:
+                    try:
+                        frame_array = cv2.cvtColor(raw, cv2.COLOR_BAYER_RG2GRAY)
+                    except Exception:
+                        frame_array = raw.astype(np.uint8, copy=False)
+
+                frame = Rgb8Frame.create(frame_array, datetime.now())
 
                 # ---------------------------------------------------------
                 # ★ 元の露光に戻す
                 # ---------------------------------------------------------
                 if exposure_changed:
                     try:
-                        self.camera.ExposureTime.SetValue(float(original_exposure))
-                        self.state.exposure_time = original_exposure
+                        self._set_exposure_value(float(original_exposure))
                     except Exception as e:
                         self.logger.error(f"露光復帰失敗: {e}")
 

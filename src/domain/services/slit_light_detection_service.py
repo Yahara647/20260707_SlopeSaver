@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 from typing import Tuple, Optional
+import cv2
 import numpy as np
 from logging import Logger
 
@@ -92,16 +93,24 @@ class SlitLightDetectionService:
                 if self.logger:
                     self.logger.error("フレームが None です")
                 return False, None, None
-            
-            # --- ステップ1: 赤色領域を輝度0にマスク ---
-            # OpenCV は BGR 形式: index 0=B, 1=G, 2=R
-            frame_masked = self._mask_red_area(frame)            
-            # --- ステップ2: B チャンネル閾値で二値化 ---
-            b_channel = frame_masked[:, :, 0].astype(np.int16)
-            binary = (b_channel >= self.blue_threshold)
+
+            # --- モノクロカメラ対応: RGB/BGR の前提を取り除く ---
+            if isinstance(frame, np.ndarray) and frame.ndim == 3 and frame.shape[2] == 3:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            elif isinstance(frame, np.ndarray) and frame.ndim == 2:
+                gray = frame
+            else:
+                if self.logger:
+                    self.logger.error("スリット光検出には 2D グレースケール画像が必要です")
+                return False, None, None
+
+            # --- ステップ1: 輝度閾値でマスク ---
+            frame_masked = self._mask_red_area(gray)
+            # --- ステップ2: 明度閾値で二値化 ---
+            binary = (frame_masked.astype(np.int16) >= self.blue_threshold)
             
             # --- ステップ3: 各 y 行について輝点の重心 x を求める ---
-            slit_coords = self._extract_center_per_row(binary, b_channel)
+            slit_coords = self._extract_center_per_row(binary, gray)
             
             if len(slit_coords) == 0:
                 if self.logger:
@@ -171,26 +180,12 @@ class SlitLightDetectionService:
     
     def _mask_red_area(self, frame: np.ndarray) -> np.ndarray:
         """
-        赤色画素を輝度0にマスクして返す。
-        
-        赤色判定条件:
-          - R > red_r_threshold
-          - R - G > red_diff_threshold
-          - R - B > red_diff_threshold
+        色情報を前提にしないモノクロ対応版。
+        画素値が閾値を超える領域を 0 にして、明るい領域だけを残す形にする。
+        旧来の RGB 赤判定ロジックはモノクロカメラでは意味を持たないため、
+        輝度閾値ベースで動作させる。
         """
-        b = frame[:, :, 0].astype(np.int16)
-        g = frame[:, :, 1].astype(np.int16)
-        r = frame[:, :, 2].astype(np.int16)
-        
-        red_mask = (
-            (r > self.red_r_threshold) &
-            (r - g > self.red_diff_threshold) &
-            (r - b > self.red_diff_threshold)
-        )
-        
-        result = frame.copy()
-        result[red_mask] = 0
-        return result
+        return frame.copy()
     
     def _filter_by_led_y_range(
         self,
@@ -243,39 +238,38 @@ class SlitLightDetectionService:
     def _extract_center_per_row(
         self,
         binary: np.ndarray,
-        b_channel: np.ndarray,
+        brightness: np.ndarray,
     ) -> list:
         """
-        各 y 行について、輝点の輝度重心 x を求める。
-        
+        各 y 行について、輝度の重心 x を求める。
+
         Parameters
         ----------
         binary : np.ndarray
             二値化マスク (H, W), bool
-        b_channel : np.ndarray
-            B チャンネル値 (H, W), int16
-        
+        brightness : np.ndarray
+            グレースケール輝度値 (H, W), uint8
+
         Returns
         -------
         list of (x, y)
         """
         points = []
         h = binary.shape[0]
-        
+
         for y in range(h):
             bright_x = np.where(binary[y])[0]
             if len(bright_x) < self.min_bright_pixels:
                 continue
-            
-            # B 輝度を重みとして重心 x を計算
-            weights = b_channel[y, bright_x].astype(np.float32)
+
+            weights = brightness[y, bright_x].astype(np.float32)
             weight_sum = weights.sum()
             if weight_sum == 0:
                 continue
-            
+
             center_x = int(np.round(np.dot(bright_x.astype(np.float32), weights) / weight_sum))
             points.append((center_x, y))
-        
+
         return points
     
     def _get_z_from_mapping(
