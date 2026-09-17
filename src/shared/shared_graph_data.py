@@ -11,8 +11,9 @@ class SharedGraphData:
         # 実空間の赤輝点（world座標）
         self.red_in_world: Optional[np.ndarray] = None
 
-        # 一次残差の最小値補正 residuals (shape=(N,2))
-        self.slope_linear_residuals_min_adjusted: Optional[np.ndarray] = None
+        # slit_frame_adjusted_linear_residuals（shape=(N,2)）
+        # GUI グラフの縦軸には [:, 0] を使用する。
+        self.slit_frame_adjusted_linear_residuals: Optional[np.ndarray] = None
 
 
 shared_graph_data = SharedGraphData()

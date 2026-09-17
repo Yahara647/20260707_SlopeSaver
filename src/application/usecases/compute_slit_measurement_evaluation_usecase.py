@@ -153,6 +153,10 @@ class ComputeSlitMeasurementEvaluationUseCase:
         pred_y = np.polyval(coef_y, xs)
         return np.column_stack([ys_x - pred_x, ys_y - pred_y])
 
+    # フレーム上のスリット光点列が「直線とみなせる」と判定する決定係数(R^2)の閾値。
+    # R^2 がこの値以上の場合は、画像上のブレに起因する補正（ステップ3・4）を省略する。
+    _FRAME_LINEARITY_R2_THRESHOLD = 0.99
+
     @staticmethod
     def _slit_frame_adjusted_linear_residuals(
         xs: np.ndarray,
@@ -163,14 +167,26 @@ class ComputeSlitMeasurementEvaluationUseCase:
         frame_y = frame_coords[:, 1].astype(np.float64)
 
         if frame_x.shape[0] < 2:
-            line_slope = 0.0
-            predicted_frame_y = np.full_like(frame_y, np.mean(frame_y))
-        else:
-            line_slope, line_intercept = np.polyfit(frame_x, frame_y, 1)
-            predicted_frame_y = np.polyval([line_slope, line_intercept], frame_x)
+            # フィット不能（点数不足）のため、直線とみなして補正を省略する
+            adjusted = linear_residuals
+            return adjusted - np.mean(adjusted, axis=0)
 
-        frame_diffs = frame_y - predicted_frame_y
-        scale, _, _, _ = np.linalg.lstsq(frame_diffs.reshape(-1, 1), linear_residuals, rcond=None)
-        correction = float(line_slope) * xs.reshape(-1, 1) * scale
-        adjusted = linear_residuals + correction
+        # 縦軸: frame_x, 横軸: frame_y としてフィッティングする
+        line_slope, line_intercept = np.polyfit(frame_y, frame_x, 1)
+        predicted_frame_x = np.polyval([line_slope, line_intercept], frame_y)
+        frame_diffs = frame_x - predicted_frame_x
+
+        # 決定係数 R^2 を算出し、フレーム内の直線当てはまりの良さを評価する
+        ss_res = float(np.sum(frame_diffs ** 2))
+        ss_tot = float(np.sum((frame_x - np.mean(frame_x)) ** 2))
+        r2 = 1.0 if ss_tot < 1e-12 else 1.0 - ss_res / ss_tot
+
+        if r2 >= ComputeSlitMeasurementEvaluationUseCase._FRAME_LINEARITY_R2_THRESHOLD:
+            # フレーム内がほぼ直線 → 画像ブレによる補正（ステップ3・4）を省略
+            adjusted = linear_residuals
+        else:
+            scale, _, _, _ = np.linalg.lstsq(frame_diffs.reshape(-1, 1), linear_residuals, rcond=None)
+            correction = float(line_slope) * xs.reshape(-1, 1) * scale
+            adjusted = linear_residuals - correction
+
         return adjusted - np.mean(adjusted, axis=0)

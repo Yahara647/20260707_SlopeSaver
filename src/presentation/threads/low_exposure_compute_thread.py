@@ -402,20 +402,20 @@ class LowExposureComputeThread:
             # DisplayThread は red_in_world[:, 1] を横軸に使用するため、
             # slit_points_in_world をそのまま渡すと y 座標が横軸になる。
             world_points = result.slit_points_in_world.coords_in_world
-            # 縦軸は一次残差そのものを使用する。
-            residuals = evaluation.linear_residuals.residuals
+            # 縦軸は slit_frame_adjusted_linear_residuals[:, 0] を使用する。
+            slit_frame_adjusted_linear_residuals = evaluation.slit_frame_adjusted_linear_residuals.residuals
 
             with shared_graph_data.lock:
                 if (
                     world_points is not None
-                    and residuals is not None
-                    and len(world_points) == len(residuals)
+                    and slit_frame_adjusted_linear_residuals is not None
+                    and len(world_points) == len(slit_frame_adjusted_linear_residuals)
                 ):
                     shared_graph_data.red_in_world = world_points.copy()
-                    shared_graph_data.slope_linear_residuals_min_adjusted = residuals.copy()
+                    shared_graph_data.slit_frame_adjusted_linear_residuals = slit_frame_adjusted_linear_residuals.copy()
                 else:
                     shared_graph_data.red_in_world = None
-                    shared_graph_data.slope_linear_residuals_min_adjusted = None
+                    shared_graph_data.slit_frame_adjusted_linear_residuals = None
                     self._logger.warning(
                         "表示用グラフデータの要素数が不一致のため更新をスキップしました"
                     )

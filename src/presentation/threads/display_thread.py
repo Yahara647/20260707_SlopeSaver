@@ -115,13 +115,14 @@ class DisplayThread:
 
     _REGION_THRESHOLD = 0.5
 
-    def _render_graph_overlay(self, red_world: np.ndarray, residuals: np.ndarray) -> np.ndarray:
+    def _render_graph_overlay(self, red_world: np.ndarray, slit_frame_adjusted_linear_residuals: np.ndarray) -> np.ndarray:
         """背景テンプレート上にグラフ領域だけ折れ線を重ねて描画する。"""
         graph_img = self._graph_base_template.copy()
         y_axis_min = -2.0
         y_axis_max = 2.0
 
-        ys_all = residuals[:, 0]
+        # 縦軸は slit_frame_adjusted_linear_residuals[:, 0] を使用する。
+        ys_all = slit_frame_adjusted_linear_residuals[:, 0]
         data_max = float(np.max(ys_all)) if len(ys_all) > 0 else 0.0
 
         # 画像左上に、グラフ縦軸データの最大値を Score として表示
@@ -143,7 +144,7 @@ class DisplayThread:
         plot_x2, plot_y2 = x2 - margin, y2 - margin
 
         xs = red_world[:, 1]
-        ys = residuals[:, 0]
+        ys = slit_frame_adjusted_linear_residuals[:, 0]
 
         if len(xs) <= 1:
             return graph_img
@@ -334,10 +335,10 @@ class DisplayThread:
 
                             with shared_graph_data.lock:
                                 red_world = shared_graph_data.red_in_world
-                                residuals = shared_graph_data.slope_linear_residuals_min_adjusted
+                                slit_frame_adjusted_linear_residuals = shared_graph_data.slit_frame_adjusted_linear_residuals
 
-                            if red_world is not None and residuals is not None:
-                                graph_img = self._render_graph_overlay(red_world, residuals)
+                            if red_world is not None and slit_frame_adjusted_linear_residuals is not None:
+                                graph_img = self._render_graph_overlay(red_world, slit_frame_adjusted_linear_residuals)
 
                                 cv2.imshow("Steel_Strip_Profile", graph_img)
 

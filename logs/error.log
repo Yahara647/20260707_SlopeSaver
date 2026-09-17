@@ -18492,3 +18492,49 @@ NameError: name 'time' is not defined. Did you forget to import 'time'
 2026-09-10 15:51:41,949 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
 2026-09-10 16:55:11,344 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
 2026-09-10 17:00:20,360 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-14 16:45:59,395 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-14 16:52:03,778 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-14 16:54:38,883 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:212) - CameraDriver: 初期化中に例外発生: Failed to open 'Basler acA2040-35gm#00305354439F#169.254.160.67:3956'. The device is controlled by another application. Err: An attempt was made to access an address location which is currently/momentary not accessible. (0xE1018006)
+ : RuntimeException thrown (file 'GigEDevice.cpp', line 312)
+Traceback (most recent call last):
+  File "c:\yahara\python\20260707_github_usage\20260707_SlopeSaver\src\infrastructure\camera\pylon_camera_driver.py", line 124, in initialize
+    self.camera.Open()
+  File "C:\yahara\python\20260707_github_usage\20260707_SlopeSaver\.venv\Lib\site-packages\pypylon\pylon.py", line 3481, in Open
+    return _pylon.InstantCamera_Open(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_genicam.RuntimeException: Failed to open 'Basler acA2040-35gm#00305354439F#169.254.160.67:3956'. The device is controlled by another application. Err: An attempt was made to access an address location which is currently/momentary not accessible. (0xE1018006)
+ : RuntimeException thrown (file 'GigEDevice.cpp', line 312)
+2026-09-14 16:54:38,885 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Node is not available. : AccessException thrown in node 'Width' (file 'IntegerT.h', line 280)
+2026-09-14 16:54:40,896 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:212) - CameraDriver: 初期化中に例外発生: Failed to open 'Basler acA2040-35gm#00305354439F#169.254.160.67:3956'. The device is controlled by another application. Err: An attempt was made to access an address location which is currently/momentary not accessible. (0xE1018006)
+ : RuntimeException thrown (file 'GigEDevice.cpp', line 312)
+Traceback (most recent call last):
+  File "c:\yahara\python\20260707_github_usage\20260707_SlopeSaver\src\infrastructure\camera\pylon_camera_driver.py", line 124, in initialize
+    self.camera.Open()
+  File "C:\yahara\python\20260707_github_usage\20260707_SlopeSaver\.venv\Lib\site-packages\pypylon\pylon.py", line 3481, in Open
+    return _pylon.InstantCamera_Open(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_genicam.RuntimeException: Failed to open 'Basler acA2040-35gm#00305354439F#169.254.160.67:3956'. The device is controlled by another application. Err: An attempt was made to access an address location which is currently/momentary not accessible. (0xE1018006)
+ : RuntimeException thrown (file 'GigEDevice.cpp', line 312)
+2026-09-14 16:54:40,899 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Node is not available. : AccessException thrown in node 'Width' (file 'IntegerT.h', line 280)
+2026-09-14 16:54:53,571 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-14 16:58:55,892 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-14 17:02:37,836 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-16 11:39:48,528 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 13:09:31,119 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 13:29:28,179 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 13:31:42,582 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 13:32:21,502 [ERROR] [LowExposureComputeThread] slope_saver (led_position_detection_service.py:187) - 全LEDを試しましたが、単一点灯で投影位置を検出できませんでした
+2026-09-17 13:32:34,008 [ERROR] [LowExposureComputeThread] slope_saver (led_position_detection_service.py:187) - 全LEDを試しましたが、単一点灯で投影位置を検出できませんでした
+2026-09-17 13:37:53,097 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:01:05,230 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:17:28,915 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:31:22,407 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:50:08,458 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:53:04,974 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:54:11,390 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:54:45,317 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:55:58,496 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:56:56,782 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 14:57:57,213 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 15:05:32,318 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
+2026-09-17 15:06:58,128 [ERROR] [MainThread] slope_saver (pylon_camera_driver.py:322) - ROI 設定失敗: Value = 1500 must be equal or smaller than Max = 864. : OutOfRangeException thrown in node 'OffsetX' while calling 'OffsetX.SetValue()' (file 'IntegerT.h', line 81)
